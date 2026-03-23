@@ -341,12 +341,12 @@ function renderGrid(ini,fim,g){
       h+='<span class="ldot-val" style="color:'+vc(v,l)+'">'+v+'</span>';
       h+='<div class="ldot-bar"><div class="ldot-fill" style="height:'+bh+'px;background:'+vc(v,l)+'"></div></div>';
       h+='<span class="ldot-dt">'+fd(d.dt)+'</span></div>';
-      if(i<lds.length-1){var nx=lds[i+1][g]||0;h+='<div class="arrow-dir">'+(nx>v?'&#8599;':nx<v?'&#8600;':'&#8594;')+'</div>';}
+      if(i<lds.length-1){var nx=lds[i+1][g]||0;h+='<div class="arrow-dir">'+(nx>v?'↗':nx<v?'↘':'→')+'</div>';}
     });
     h+='</div>';
     h+='<div class="rc-bottom">';
     var tColor=ri3?'var(--warn)':fa3?'var(--ok)':'var(--t3)';
-    var tTxt=ri3?'&#8593; subindo na janela':fa3?'&#8595; caindo na janela':'&#8594; estavel';
+    var tTxt=ri3?'↑ subindo na janela':fa3?'↓ caindo na janela':'→ estavel';
     if(delta!==0){var sg=delta>0?'+':'';h+='<span class="rc-trend" style="color:'+tColor+'">'+(sg+delta)+' ppm no periodo</span>';}
     else h+='<span class="rc-trend" style="color:'+tColor+'">'+tTxt+'</span>';
     if(co>0)h+='<span class="cc'+Math.min(co,3)+'">'+co+'x acima LSC</span>';
@@ -424,19 +424,11 @@ function rM1(){
     {label:'Media '+cp.m.toFixed(1),data:Array(n).fill(cp.m),borderColor:'rgba(74,144,217,.5)',borderWidth:1.5,borderDash:[2,4],pointRadius:0,fill:false},
     {label:'UCL '+cp.ucl.toFixed(1),data:Array(n).fill(cp.ucl),borderColor:'rgba(74,144,217,.2)',borderWidth:1,borderDash:[2,5],pointRadius:0,fill:false},
     {label:'LCL '+cp.lcl.toFixed(1),data:Array(n).fill(cp.lcl),borderColor:'rgba(74,144,217,.2)',borderWidth:1,borderDash:[2,5],pointRadius:0,fill:false}
-  ]},options:cO({x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8},maxRotation:45,minRotation:45}},y:{min:0,max:Math.max(l*1.35,Math.max.apply(null,vs)*1.15,10),grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8}}}},function(c){if(c.datasetIndex===0){var v=c.raw,p=(v/l*100).toFixed(0),z=v>=l?'DESVIO':v>=z2?'Alerta':v>=z1?'Atencao':'Normal';return ' '+v+' ppm ('+p+'%) - '+z;}return ' '+c.dataset.label;})});
+  ]},options:cO({x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8},maxRotation:45,minRotation:45}},y:{min:0,max:Math.max(l*1.35,Math.max.apply(null,vs)*1.15,10),grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8}}}},function(c){if(c.datasetIndex===0){return ' '+c.raw+' ppm';}return null;})});
   var pOk=vs.filter(function(v){return v<l;}).length;
   var tr=vs.length>1?(vs[vs.length-1]>vs[vs.length-2]?'Subindo':vs[vs.length-1]<vs[vs.length-2]?'Caindo':'Estavel'):'--';
-  document.getElementById('cst').innerHTML=
-    '<div class="cs"><div class="csl">Media</div><div class="csv c-b">'+cp.m.toFixed(1)+'</div><div class="css2">ppm</div></div>'+
-    '<div class="cs"><div class="csl">Desv. Pad.</div><div class="csv">'+cp.s.toFixed(1)+'</div><div class="css2">ppm</div></div>'+
-    '<div class="cs"><div class="csl">UCL (+3s)</div><div class="csv" style="color:'+(cp.ucl>l?'var(--alert)':'var(--ok)')+'">'+cp.ucl.toFixed(1)+'</div><div class="css2">ppm</div></div>'+
-    '<div class="cs"><div class="csl">LCL (-3s)</div><div class="csv c-ok">'+cp.lcl.toFixed(1)+'</div><div class="css2">ppm</div></div>'+
-    '<div class="cs"><div class="csl">% Abaixo LSC</div><div class="csv c-ok">'+((pOk/vs.length)*100).toFixed(0)+'%</div><div class="css2">'+pOk+'/'+vs.length+'</div></div>'+
-    '<div class="cs"><div class="csl">Tendencia</div><div class="csv" style="font-size:13px;margin-top:3px">'+tr+'</div></div>';
-  var we=document.getElementById('wea');
-  if(wv.length===0)we.innerHTML='<span style="font-size:10px;color:var(--ok)">&#10003; Nenhuma regra WE violada</span>';
-  else{var sk={};wv.forEach(function(w){sk[w.r]=w.d;});we.innerHTML=Object.keys(sk).map(function(k){return'<span class="web we'+k+'">Regra WE '+k+': '+sk[k]+'</span>';}).join('');}
+  document.getElementById('cst').innerHTML='';
+  document.getElementById('wea').innerHTML='';
 }
 function rM2(){
   var r=document.getElementById('m2r').value||RR[0];
