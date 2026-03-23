@@ -201,11 +201,11 @@ input[type=month]:focus{border-color:var(--bolt)}
         <div class="li"><div class="ld" style="background:rgba(74,144,217,.6)"></div>Media</div>
         <div class="li"><div class="ld" style="background:rgba(74,144,217,.25)"></div>UCL/LCL</div>
         <div class="li"><div class="ld" style="background:#4a90d9"></div>Valores reais</div>
-        <div class="li"><div style="width:10px;height:10px;border:2px solid #f59e0b;border-radius:50%;flex-shrink:0"></div>Regra WE violada</div>
-        <div class="li"><div class="ld" style="background:rgba(34,197,94,.5)"></div>CIGRE Tipico</div>
-        <div class="li"><div class="ld" style="background:rgba(249,115,22,.5)"></div>CIGRE I1</div>
-        <div class="li"><div class="ld" style="background:rgba(239,68,68,.4)"></div>CIGRE I2</div>
-        <div class="li"><div style="width:10px;height:10px;background:#fb923c;border-radius:2px;flex-shrink:0"></div>EDP&#8594;HRZ mai/25</div>
+        <div class="li"><div style="width:10px;height:10px;border:2px solid #f59e0b;border-radius:50%;flex-shrink:0"></div>Regra Western Electric violada</div>
+        <div class="li"><div class="ld" style="background:rgba(34,197,94,.5)"></div>CIGR&Eacute; T&iacute;pico</div>
+        <div class="li"><div class="ld" style="background:rgba(249,115,22,.5)"></div>CIGR&Eacute; Intermedi&aacute;rio 1</div>
+        <div class="li"><div class="ld" style="background:rgba(239,68,68,.4)"></div>CIGR&Eacute; Intermedi&aacute;rio 2</div>
+        <div class="li"><div style="width:10px;height:10px;background:#fb923c;border-radius:2px;flex-shrink:0"></div>EDP &rarr; HRZ (mai/2025)</div>
       </div>
       <div class="cp"><div class="cws"><canvas id="mainCanvas"></canvas></div></div>
       <div class="cstats" id="cst"></div>
@@ -236,10 +236,10 @@ var LM={
 function getCigre(g,v){
   var lm=LM[g];if(!lm||!lm.cigre)return null;
   var cg=lm.cigre;
-  if(v>cg.i2)return{label:'Interm.2',cls:'cigre-i2',color:'#ef4444'};
-  if(v>cg.i1)return{label:'Interm.1',cls:'cigre-i1',color:'#f97316'};
-  if(v>cg.tipico)return{label:'Ac.Tipico',cls:'cigre-at',color:'#f59e0b'};
-  return{label:'Tipico',cls:'cigre-ok',color:'#22c55e'};
+  if(v>cg.i2)return{label:'Intermédiário 2',cls:'cigre-i2',color:'#ef4444'};
+  if(v>cg.i1)return{label:'Intermédiário 1',cls:'cigre-i1',color:'#f97316'};
+  if(v>cg.tipico)return{label:'Acima do Típico',cls:'cigre-at',color:'#f59e0b'};
+  return{label:'Típico',cls:'cigre-ok',color:'#22c55e'};
 }
 var GK=['c2','h2','c4','c6','ch','co','co2','o2','n2'];
 var GC={c2:'#ef4444',h2:'#4a90d9',c4:'#f59e0b',c6:'#22c55e',ch:'#a855f7',co:'#f97316',co2:'#06b6d4',o2:'#84cc16',n2:'#94a3b8'};
@@ -450,6 +450,32 @@ function rM1(){
   var pr=vs.map(function(v,i){return wv.filter(function(x){return x.i===i;}).length?6:4;});
   var pbw=vs.map(function(v,i){return wv.filter(function(x){return x.i===i;}).length?2.5:0;});
   bC(n);if(MC)MC.destroy();
+  var edpHrzPlugin={id:'edpHrz',afterDraw:function(chart){
+    var tIdx=chart.data.labels.indexOf('05/25');
+    if(tIdx<0)return;
+    var ctx=chart.ctx;
+    var xScale=chart.scales.x;
+    var yScale=chart.scales.y;
+    var x=xScale.getPixelForValue(tIdx);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x,yScale.top);
+    ctx.lineTo(x,yScale.bottom);
+    ctx.strokeStyle='rgba(251,146,60,.9)';
+    ctx.lineWidth=2;
+    ctx.setLineDash([6,3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle='rgba(249,115,22,.9)';
+    var txt='mai/2025 | EDP → HRZ';
+    ctx.font='bold 9px JetBrains Mono, monospace';
+    var tw=ctx.measureText(txt).width;
+    ctx.fillRect(x+4,yScale.top+4,tw+10,18);
+    ctx.fillStyle='#fff';
+    ctx.fillText(txt,x+9,yScale.top+16);
+    ctx.restore();
+  }};
   MC=new Chart(document.getElementById('mainCanvas'),{type:'line',data:{labels:lb,datasets:[
     {label:nm+' (ppm)',data:vs,borderColor:'#4a90d9',backgroundColor:'rgba(74,144,217,.07)',borderWidth:2,pointBackgroundColor:pb,pointBorderColor:pbd,pointBorderWidth:pbw,pointRadius:pr,pointHoverRadius:7,tension:.3,fill:true,order:2},
     {label:'LSC '+l+' ppm',data:Array(n).fill(l),borderColor:'#ef4444',borderWidth:2,borderDash:[7,3],pointRadius:0,fill:false},
@@ -458,20 +484,20 @@ function rM1(){
     {label:'Media '+cp.m.toFixed(1),data:Array(n).fill(cp.m),borderColor:'rgba(74,144,217,.5)',borderWidth:1.5,borderDash:[2,4],pointRadius:0,fill:false},
     {label:'UCL '+cp.ucl.toFixed(1),data:Array(n).fill(cp.ucl),borderColor:'rgba(74,144,217,.2)',borderWidth:1,borderDash:[2,5],pointRadius:0,fill:false},
     {label:'LCL '+cp.lcl.toFixed(1),data:Array(n).fill(cp.lcl),borderColor:'rgba(74,144,217,.2)',borderWidth:1,borderDash:[2,5],pointRadius:0,fill:false},
-    {label:'CIGRE Tipico '+((LM[g]&&LM[g].cigre)?LM[g].cigre.tipico:'--'),data:Array(n).fill((LM[g]&&LM[g].cigre)?LM[g].cigre.tipico:null),borderColor:'rgba(34,197,94,.35)',borderWidth:1,borderDash:[1,4],pointRadius:0,fill:false},
-    {label:'CIGRE I1 '+((LM[g]&&LM[g].cigre)?LM[g].cigre.i1:'--'),data:Array(n).fill((LM[g]&&LM[g].cigre)?LM[g].cigre.i1:null),borderColor:'rgba(249,115,22,.4)',borderWidth:1,borderDash:[1,4],pointRadius:0,fill:false},
-    {label:'CIGRE I2 '+((LM[g]&&LM[g].cigre)?LM[g].cigre.i2:'--'),data:Array(n).fill((LM[g]&&LM[g].cigre)?LM[g].cigre.i2:null),borderColor:'rgba(239,68,68,.35)',borderWidth:1,borderDash:[1,4],pointRadius:0,fill:false},
+    {label:'CIGRé Típico '+((LM[g]&&LM[g].cigre)?LM[g].cigre.tipico:'--'),data:Array(n).fill((LM[g]&&LM[g].cigre)?LM[g].cigre.tipico:null),borderColor:'rgba(34,197,94,.35)',borderWidth:1,borderDash:[1,4],pointRadius:0,fill:false},
+    {label:'CIGRé Interm. 1 '+((LM[g]&&LM[g].cigre)?LM[g].cigre.i1:'--'),data:Array(n).fill((LM[g]&&LM[g].cigre)?LM[g].cigre.i1:null),borderColor:'rgba(249,115,22,.4)',borderWidth:1,borderDash:[1,4],pointRadius:0,fill:false},
+    {label:'CIGRé Interm. 2 '+((LM[g]&&LM[g].cigre)?LM[g].cigre.i2:'--'),data:Array(n).fill((LM[g]&&LM[g].cigre)?LM[g].cigre.i2:null),borderColor:'rgba(239,68,68,.35)',borderWidth:1,borderDash:[1,4],pointRadius:0,fill:false},
     (function(){
       var yMax=Math.max(l*1.35,Math.max.apply(null,vs)*1.15,10);
       var tIdx=lb.indexOf('05/25');
       var edpData=Array(n).fill(null);
       if(tIdx>=0){edpData[tIdx]=yMax;}
-      return {label:'EDP|HRZ mai/25',data:edpData,borderColor:'rgba(251,146,60,.9)',backgroundColor:'rgba(251,146,60,.9)',pointBackgroundColor:'rgba(251,146,60,.9)',pointBorderColor:'#fff',pointRadius:function(ctx){return ctx.dataIndex===tIdx?8:0;},pointStyle:'rectRounded',showLine:false,fill:false};
+      return {label:'EDP → HRZ mai/2025',data:edpData,borderColor:'rgba(251,146,60,.9)',backgroundColor:'rgba(251,146,60,.9)',pointBackgroundColor:'rgba(251,146,60,.9)',pointBorderColor:'#fff',pointRadius:function(ctx){return ctx.dataIndex===tIdx?8:0;},pointStyle:'rectRounded',showLine:false,fill:false};
     })()
-  ]},options:cO({x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8},maxRotation:45,minRotation:45}},y:{min:0,max:Math.max(l*1.35,Math.max.apply(null,vs)*1.15,10),grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8}}}},function(c){
+  ]},plugins:[edpHrzPlugin],options:cO({x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8},maxRotation:45,minRotation:45}},y:{min:0,max:Math.max(l*1.35,Math.max.apply(null,vs)*1.15,10),grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#2a4070',font:{family:'JetBrains Mono',size:8}}}},function(c){
           if(c.datasetIndex===0){
             var lbVal=c.chart.data.labels[c.dataIndex];
-            var periodo=lbVal<='04/25'?'EDP':'HRZ';
+            var periodo=lbVal<='04/25'?'Período EDP':'Período HRZ';
             var cgr=getCigre(g,c.raw);
             var cgrTxt=cgr?' | CIGRE: '+cgr.label:'';
             return ' '+c.raw+' ppm | '+periodo+cgrTxt;
